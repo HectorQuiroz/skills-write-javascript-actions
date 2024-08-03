@@ -6,8 +6,21 @@ on:
 
 jobs:
   action:
-    if: ${{ !github.event.repository.is_template }}
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
+      - name: ha-ha
+        uses: ./.github/actions/joke-action
+
+      - name: Comment Joke on Issue
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const joke = "${{ steps.ha-ha.outputs.joke-output }}";
+            const issue_number = context.issue.number;
+            github.issues.createComment({
+              ...context.repo,
+              issue_number,
+              body: `Here's a joke for you: ${joke}`
+            });
